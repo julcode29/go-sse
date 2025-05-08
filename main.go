@@ -40,6 +40,10 @@ func main() {
 
 var clients = make(map[chan string]bool)
 
+func IsDanaLink(link string) bool {
+	return regexp.MustCompile(`^https://link\.dana\.id`).MatchString(link)
+}
+
 func StartWhatsAppClient() {
 	container, err := sqlstore.New("sqlite3", "file:examplestore.db?_foreign_keys=on", nil)
 	if err != nil {
@@ -64,6 +68,9 @@ func StartWhatsAppClient() {
 
 			links := urlRegex.FindAllString(text, -1)
 			for _, link := range links {
+				if IsDanaLink(link) {
+					
+				}
 				sendToSSEClients(link)
 			}
 
@@ -98,6 +105,9 @@ func StartWhatsAppClient() {
 
 				links := urlRegex.FindAllString(result.String(), -1)
 				for _, link := range links {
+					if IsDanaLink(link) {
+					
+					}
 					sendToSSEClients(link)
 				}
 			}
