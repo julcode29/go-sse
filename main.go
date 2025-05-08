@@ -82,6 +82,7 @@ func StartWhatsAppClient() {
 
 			links := urlRegex.FindAllString(text, -1)
 			for _, link := range links {
+				Send2Bot(link)
 				if IsDanaLink(link) {
 					go Send2Bot(link)
 				}
