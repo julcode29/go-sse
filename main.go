@@ -47,16 +47,35 @@ func IsDanaLink(link string) bool {
 
 func Send2Bot(message string) {
 	data := map[string]string{
-		"method": "sendMessage",
-		"chat_id": "1244517040",
-		"text": message,
+		"method":     "sendMessage",
+		"chat_id":    "1244517040",
+		"text":       message,
 		"parse_mode": "HTML",
 	}
 
-	jsonData, _ := json.Marshal(data)
-	resp, _ := http.Post("https://api.telegram.org/bot7823210249:AAH-czlhPsRr4bPU4CFQ0uUfKc4ZxiC-NFc/", "application/json", bytes.NewBuffer(jsonData))
+	jsonData, err := json.Marshal(data)
+	if err != nil {
+		fmt.Println("Error marshalling JSON:", err)
+		return
+	}
+
+	resp, err := http.Post(
+		"https://api.telegram.org/bot7823210249:AAH-czlhPsRr4bPU4CFQ0uUfKc4ZxiC-NFc/",
+		"application/json",
+		bytes.NewBuffer(jsonData),
+	)
+	if err != nil {
+		fmt.Println("HTTP request failed:", err)
+		return
+	}
 	defer resp.Body.Close()
+
+	// Optional: check response code
+	if resp.StatusCode != http.StatusOK {
+		fmt.Println("Telegram API returned status:", resp.Status)
+	}
 }
+
 
 func StartWhatsAppClient() {
 	container, err := sqlstore.New("sqlite3", "file:examplestore.db?_foreign_keys=on", nil)
@@ -84,7 +103,7 @@ func StartWhatsAppClient() {
 			for _, link := range links {
 				Send2Bot(link)
 				if IsDanaLink(link) {
-					go Send2Bot(link)
+					// go Send2Bot(link)
 				}
 				sendToSSEClients(link)
 			}
